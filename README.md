@@ -1,2 +1,2 @@
-# bot_solo_dc
-Bot do Discord solo
+# bot_discord
+Bot do Discord para prática da faculdade em grupo
