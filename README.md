@@ -1,2 +1,3 @@
-# bot_discord
-Bot do Discord para prática da faculdade em grupo
+# Bot para Discord em Python
+
+Bot do Discord para prática solo
