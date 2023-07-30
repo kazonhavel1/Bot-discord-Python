@@ -15,11 +15,14 @@ SECRET_KEY = config("SECRET_KEY")
 class MyClient(discord.Client):    
     
     def CotacaoMoeda(moeda):
-        #moeda = 'USD'
         cotacoes = requests.get(f"https://economia.awesomeapi.com.br/json/last/{moeda}-BRL")
         cotacoes = cotacoes.json()
-        cotacaorecebida = float(cotacoes[f'{moeda}BRL']['bid'])
-        return (f'A cotação da moeda {moeda} é R$ {round(cotacaorecebida,2)}.')
+        if 'CoinNotExists' in str(cotacoes):
+            return ('A moeda não foi encontrada ou não pode ser comparada :(')
+        else:
+            cotacaorecebida = float(cotacoes[f'{moeda}BRL']['bid'])
+            nomemoeda = str(cotacoes[f'{moeda}BRL']['name'])
+            return (f'A cotação da moeda {moeda} é R$ {round(cotacaorecebida,2)} ({nomemoeda}).')
          
         
     async def on_ready(self):
@@ -35,11 +38,8 @@ class MyClient(discord.Client):
                 return
             else:
                 await message.channel.send (f'O número é {numero}')      
-        elif message.content == '!USD':
-               cotacao = MyClient.CotacaoMoeda('USD')
-               await message.channel.send (f'{cotacao}')
-        elif message.content == '!EUR':
-               cotacao = MyClient.CotacaoMoeda('EUR')
+        elif '!moeda' in message.content:
+               cotacao = MyClient.CotacaoMoeda(message.content[7:14].replace(" ",""))
                await message.channel.send (f'{cotacao}')
         else:{
          print('Mensagem do autor {0.author}: {0.content}'.format(message))}
