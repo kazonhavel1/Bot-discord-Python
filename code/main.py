@@ -24,7 +24,18 @@ class MyClient(discord.Client):
             nomemoeda = str(cotacoes[f'{moeda}BRL']['name'])
             return (f'A cotação da moeda {moeda} é R$ {round(cotacaorecebida,2)} ({nomemoeda}).')
          
+    def ConsultaCep(cep):
+        ceprecebido = requests.get(f'https://viacep.com.br/ws/{cep}/json/')
+        ceprecebido = ceprecebido.json()
+
+        if 'erro' in str(ceprecebido):
+            return ('CEP não encontrado :(')
+        else:
+            retorno = ('CEP: ' + ceprecebido['cep'] + '\nLogradouro: ' + ceprecebido['logradouro'] + '\nBairro: '+ ceprecebido['bairro'] + '\nCidade: ' +
+            ceprecebido['localidade'] + '\nEstado: ' + ceprecebido['uf'])
+            return retorno
         
+
     async def on_ready(self):
         print('Logado como {0}!'.format(self.user))
         
@@ -41,6 +52,9 @@ class MyClient(discord.Client):
         elif '!moeda' in message.content:
                cotacao = MyClient.CotacaoMoeda(message.content[7:14].replace(" ",""))
                await message.channel.send (f'{cotacao}')
+        elif '!cep' in message.content:
+                cepescolhido = MyClient.ConsultaCep(message.content[5:13])
+                await message.channel.send(f'{cepescolhido}')
         else:{
          print('Mensagem do autor {0.author}: {0.content}'.format(message))}
         
