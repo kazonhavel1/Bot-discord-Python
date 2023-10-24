@@ -100,7 +100,7 @@ class Apis():
         return msg
     
     def CotacaoMoeda(moeda):
-        cotacoes = r.requests.get(f"https://economia.awesomeapi.com.br/json/last/{moeda}-BRL")
+        cotacoes = r.get(f"https://economia.awesomeapi.com.br/json/last/{moeda}-BRL")
         cotacoes = cotacoes.json()
         if 'CoinNotExists' in str(cotacoes):
             return ('A moeda não foi encontrada ou não pode ser comparada :(')
@@ -110,7 +110,7 @@ class Apis():
             return (f'A cotação da moeda {moeda} é R$ {round(cotacaorecebida,2)} ({nomemoeda})., {cotacoes}')
          
     def ConsultaCep(cep):
-        ceprecebido = r.requests.get(f'https://viacep.com.br/ws/{cep}/json/')
+        ceprecebido = r.get(f'https://viacep.com.br/ws/{cep}/json/')
         ceprecebido = ceprecebido.json()
 
         if 'erro' in str(ceprecebido):
