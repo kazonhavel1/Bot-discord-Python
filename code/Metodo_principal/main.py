@@ -39,7 +39,8 @@ class MyClient(discord.Client):
         else:{
          print('Mensagem do autor {0.author}: {0.content}'.format(message))}
         
-        
-            
+   
+           
 client = MyClient(intents=intents)  # Passa o objeto de intenções ao criar a instância do cliente
 client.run(f'{SECRET_KEY}')  # TOKEN de acesso do BOT aqui
+
