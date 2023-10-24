@@ -107,7 +107,7 @@ class Apis():
         else:
             cotacaorecebida = float(cotacoes[f'{moeda}BRL']['bid'])
             nomemoeda = str(cotacoes[f'{moeda}BRL']['name'])
-            return (f'A cotação da moeda {moeda} é R$ {round(cotacaorecebida,2)} ({nomemoeda})., {cotacoes}')
+            return (f'A cotação da moeda {moeda} é R$ {round(cotacaorecebida,2)} ({nomemoeda}).')
          
     def ConsultaCep(cep):
         ceprecebido = r.get(f'https://viacep.com.br/ws/{cep}/json/')
