@@ -1,9 +1,9 @@
 import discord
+from discord.ext import commands
 import random
 from decouple import config
 import Apis as a
 
-# Defina as intenções que o bot irá utilizar
 intents = discord.Intents.default()
 intents.message_content = True
 intents.typing = False
@@ -12,35 +12,38 @@ intents.members = True
 
 SECRET_KEY = config("SECRET_KEY")
 
-class MyClient(discord.Client):     
-    
-    async def on_ready(self):
-        print('Logado como {0}!'.format(self.user))
-        
-    async def on_message(self,message):
-        if message.content  == '!ola':
-            await message.channel.send (f'Olá, meu nome é {self.user}, é um prazer {message.author}')
-        elif message.content == '!r 1d20':
-            numero = random.randint (1,20)
-            while numero == 20:
-                await message.channel.send (f'Critou! O número é {numero}')
-                return
-            else:
-                await message.channel.send (f'O número é {numero}')      
-        elif '!moeda' in message.content:
-               cotacao = a.Apis.CotacaoMoeda(message.content[7:14].replace(" ",""))
-               await message.channel.send (f'{cotacao}')
-        elif '!cep' in message.content:
-                cepescolhido = a.Apis.ConsultaCep(message.content[5:13])
-                await message.channel.send(f'{cepescolhido}')
-        elif '!rastreio' in message.content:
-                mensagem = a.Apis.consulta_apicorreios(message.content[10:24])
-                await message.channel.send(f'{mensagem}')
-        else:{
-         print('Mensagem do autor {0.author}: {0.content}'.format(message))}
-        
-   
-           
-client = MyClient(intents=intents)  # Passa o objeto de intenções ao criar a instância do cliente
-client.run(f'{SECRET_KEY}')  # TOKEN de acesso do BOT aqui
+bot = commands.Bot(command_prefix="!", intents=intents)
 
+@bot.event
+async def on_ready():
+    print('Logado como {0}!'.format(bot.user))
+
+@bot.hybrid_command()
+async def teste(ctx, *args):
+    await ctx.send(f'Olá, meu nome é {bot.user}, é um prazer {ctx.author}')
+
+@bot.command(name= "r", help="Rola um dado de 20")
+async def r(ctx, *args):
+    if args[0] == '1d20':
+        numero = random.randint(1, 20)
+        if numero == 20:
+            await ctx.send(f'Critou! O número é {numero}')
+        else:
+            await ctx.send(f'O número é {numero}')
+
+@bot.command("moeda", help="Consulta de Cotação de uma moeda desejada !moeda <Sigla>")
+async def moeda(ctx, *args):
+    cotacao = a.Apis.CotacaoMoeda(args[0])
+    await ctx.send(f'{cotacao}')
+
+@bot.command(name="cep", help="Pesquisa de Cep no ViaCep !cep <cep>")
+async def cep(ctx, *args):
+    cep_escolhido = a.Apis.ConsultaCep(args[0])
+    await ctx.send(f'{cep_escolhido}')
+
+@bot.command(name="rastreio", help="Rastreio de Encomenda na base dos correios (Limite de 100 Requisições) !rastreio <código>")
+async def rastreio(ctx, *args):
+    mensagem = a.Apis.consulta_apicorreios(args[0])
+    await ctx.send(f'{mensagem}')
+
+bot.run(f'{SECRET_KEY}')
