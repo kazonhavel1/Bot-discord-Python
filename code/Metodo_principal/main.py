@@ -1,4 +1,6 @@
+from typing import Any, Optional, Type
 import discord
+from discord import app_commands
 from discord.ext import commands
 import random
 from decouple import config
@@ -12,38 +14,51 @@ intents.members = True
 
 SECRET_KEY = config("SECRET_KEY")
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+class Bot(commands.Bot):
+    def __init__(self):
+        intents = discord.Intents.all()
+        super().__init__(commands.when_mentioned_or('!'),intents=intents)
+    
+    async def setup_hook(self) -> None:
+        await self.tree.sync()
+    
+bot = Bot()
 
 @bot.event
 async def on_ready():
     print('Logado como {0}!'.format(bot.user))
 
-@bot.hybrid_command()
-async def teste(ctx, *args):
+@bot.hybrid_command(name="ola",description="Envia uma saudação!",with_app_command=True)
+async def runcommand(ctx: commands.context):
     await ctx.send(f'Olá, meu nome é {bot.user}, é um prazer {ctx.author}')
 
-@bot.command(name= "r", help="Rola um dado de 20")
-async def r(ctx, *args):
-    if args[0] == '1d20':
+@bot.tree.command(name= "r",description="Rola um dado desejado ex: Dado de 20 <1d20>")
+async def dado(Interaction: discord.Interaction, choice: str):
+    if choice == '1d20':
         numero = random.randint(1, 20)
         if numero == 20:
-            await ctx.send(f'Critou! O número é {numero}')
-        else:
-            await ctx.send(f'O número é {numero}')
+            await Interaction.response.send_message(f'CRITOU! O número é {numero}')
+        else: 
+            await Interaction.response.send_message(f"O número é {numero}")
+    else:
+        await Interaction.response.send_message(f'Tipo de dado inválido')
+#@bot.tree.command(name="teste",description="Teste")
+#async def teste(Interaction: discord.Interaction,choice: str):
+#        await Interaction.response.send_message(f"Teste {Interaction.user.mention} {choice}" )
 
-@bot.command("moeda", help="Consulta de Cotação de uma moeda desejada !moeda <Sigla>")
-async def moeda(ctx, *args):
-    cotacao = a.Apis.CotacaoMoeda(args[0])
-    await ctx.send(f'{cotacao}')
+@bot.tree.command(name="moeda", description="Consulta de Cotação de uma moeda desejada !moeda <Sigla>")
+async def moeda(Interaction: discord.Interaction, choice: str):
+    cotacao = a.Apis.CotacaoMoeda(choice)
+    await Interaction.response.send_message(f'{Interaction.user.mention} \n{cotacao}')
 
-@bot.command(name="cep", help="Pesquisa de Cep no ViaCep !cep <cep>")
-async def cep(ctx, *args):
-    cep_escolhido = a.Apis.ConsultaCep(args[0])
-    await ctx.send(f'{cep_escolhido}')
+@bot.tree.command(name="cep", description="Pesquisa de Cep no ViaCep !cep <cep>")
+async def cep(Interaction: discord.Interaction, choice: str):
+    cep_escolhido = a.Apis.ConsultaCep(choice)
+    await Interaction.response.send_message(f'{Interaction.user.mention} \n{cep_escolhido}')
 
-@bot.command(name="rastreio", help="Rastreio de Encomenda na base dos correios (Limite de 100 Requisições) !rastreio <código>")
-async def rastreio(ctx, *args):
-    mensagem = a.Apis.consulta_apicorreios(args[0])
-    await ctx.send(f'{mensagem}')
+@bot.tree.command(name="rastreio", description="Rastreio de Encomenda na base dos correios (Limite de 100 Requisições) !rastreio <código>")
+async def rastreio(Interaction: discord.Interaction, choice: str):
+    mensagem = a.Apis.consulta_apicorreios(choice)
+    await Interaction.response.send_message(f'{Interaction.user.mention} \n{mensagem}')
 
 bot.run(f'{SECRET_KEY}')
