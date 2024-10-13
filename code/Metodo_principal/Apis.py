@@ -3,6 +3,7 @@ import requests as r
 from requests.structures import CaseInsensitiveDict
 from decouple import config
 from datetime import datetime as date
+import google.generativeai as ai
 
 class Apis():
     
@@ -31,7 +32,7 @@ class Apis():
 
         if dic["error"] == True:
 
-            print(f'dic["message"]\nRequisições Restantes: {dic["api_limit_used"]}')
+            print(f'{dic["message"]}\nRequisições Restantes: {dic["api_limit_used"]}')
 
         else:
 
@@ -119,3 +120,13 @@ class Apis():
             retorno = ('CEP: ' + ceprecebido['cep'] + '\nLogradouro: ' + ceprecebido['logradouro'] + '\nBairro: '+ ceprecebido['bairro'] + '\nCidade: ' +
             ceprecebido['localidade'] + '\nEstado: ' + ceprecebido['uf'])
             return retorno       
+
+    def geminiAi(txt):
+        try:
+            token = config("GenAi")
+            ai.configure(api_key=token)
+            modelo = ai.GenerativeModel("models/gemini-1.5-pro-002")
+            texto = modelo.generate_content(txt)
+            return texto.text
+        except Exception as e:
+            return f"Erro ao efetuar a geração do texto: {e}"

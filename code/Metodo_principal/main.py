@@ -12,6 +12,8 @@ intents.typing = False
 intents.presences = False
 intents.members = True
 
+
+
 SECRET_KEY = config("SECRET_KEY")
 
 class Bot(commands.Bot):
@@ -24,9 +26,31 @@ class Bot(commands.Bot):
     
 bot = Bot()
 
+
+
 @bot.event
 async def on_ready():
     print('Logado como {0}!'.format(bot.user))
+
+@bot.event
+async def on_command_error(ctx, error):
+    await ctx.send(f"Comando digitado de forma incorreta, tente novamente.")
+
+
+@bot.command()
+async def gpt(ctx, *, texto: str = None):
+    channel = ctx.channel.name
+
+    if channel != "chat-bot":
+        await ctx.send("Este comando só pode ser utilizado no canal 'chat-bot'. Solicite ao administrador caso não exista.")
+        return
+
+    if texto: # se o texto não está vazio
+        retorno = a.Apis.geminiAi(f"{texto}")
+        await ctx.send(f"Olá {ctx.author.mention}, \n\n {retorno}")
+    else:
+        await ctx.send("Erro ao efetuar o comando. Utilize-o assim: '!gpt Olá Gemini'")
+
 
 @bot.hybrid_command(name="ola",description="Envia uma saudação!",with_app_command=True)
 async def runcommand(ctx: commands.context):
@@ -42,9 +66,7 @@ async def dado(Interaction: discord.Interaction, choice: str):
             await Interaction.response.send_message(f"O número é {numero}")
     else:
         await Interaction.response.send_message(f'Tipo de dado inválido')
-#@bot.tree.command(name="teste",description="Teste")
-#async def teste(Interaction: discord.Interaction,choice: str):
-#        await Interaction.response.send_message(f"Teste {Interaction.user.mention} {choice}" )
+
 
 @bot.tree.command(name="moeda", description="Consulta de Cotação de uma moeda desejada !moeda <Sigla>")
 async def moeda(Interaction: discord.Interaction, choice: str):
