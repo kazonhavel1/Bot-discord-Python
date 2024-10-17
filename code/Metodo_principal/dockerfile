@@ -1,5 +1,5 @@
 FROM python
 WORKDIR /app
 COPY . .
-RUN pip install --no-cache-dir -r code/Metodo_principal/requeriments.txt
+RUN pip install requests yt_dlp discord google.generativeai python-decouple
 CMD ["python", "main.py"]
